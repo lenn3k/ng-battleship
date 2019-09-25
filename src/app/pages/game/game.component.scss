@@ -1,0 +1,43 @@
+$unit: 3.5vh;
+
+.grid {
+  border: 1px solid #999;
+}
+
+.grid__row__cell {
+  background-color: white;
+  border: 1px solid #999;
+  height: $unit;
+  width: $unit;
+}
+
+.ship {
+  background-color: rgb(0, 54, 204);
+}
+
+.hit {
+  background-color: #990000;
+}
+
+.miss {
+  background-color: #999;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Opera and Firefox */
+}
+
+.docks {
+  width: 10 * $unit;
+}
+
+.docks__cell {
+  height: $unit;
+  width: $unit;
+}
