@@ -276,7 +276,7 @@ export class GameComponent implements OnInit {
         .reduce((acc, curr) => acc.concat(curr), [])
         .find(c => c.type && !c.hit);
       if (!isAnythingAlive) {
-        console.log('GAME OVER');
+        this.message('GAME OVER');
         this.gameState = 'GAMEOVER';
       }
 
@@ -289,58 +289,48 @@ export class GameComponent implements OnInit {
 
   placeEnemyShips() {
     const enemyShips = this.ships.map(s => ({ ...s, placed: false }));
-    while (enemyShips.find(s => !s.placed)) {
-      console.log('Placing enemy ship ...');
-      const x1 = Math.round(Math.random() * 10) % 9;
-      const y1 = Math.round(Math.random() * 10) % 9;
-      const x2 = Math.round(Math.random() * 10) % 9;
-      const y2 = Math.round(Math.random() * 10) % 9;
+    for (const s in enemyShips) {
+      if (enemyShips.hasOwnProperty(s)) {
+        const ship = enemyShips[s];
+        while (!ship.placed) {
+          const xStart = Math.round(Math.random() * 10) % 9;
+          const yStart = Math.round(Math.random() * 10) % 9;
+          const dir = Math.round(Math.random()) === 0 ? 'H' : 'V';
+          const length = ship.size;
 
-      // check for straight line
-      if (x1 !== x2 && y1 !== y2) {
-        continue;
-      }
-      const xStart = Math.min(x1, x2);
-      const yStart = Math.min(y1, y2);
-      const dir = x1 < x2 ? 'V' : x2 < x1 ? 'V' : y1 < y2 ? 'H' : 'H';
-      const length = Math.abs(x1 - x2) + Math.abs(y1 - y2) + 1;
+          let shipCells = [];
+          switch (dir) {
+            case 'V':
+              for (let n = xStart; n < xStart + length; n++) {
+                shipCells.push(this.findCell(this.enemyGrid, n, yStart));
+              }
+              break;
+            case 'H':
+              for (let n = yStart; n < yStart + length; n++) {
+                shipCells.push(this.findCell(this.enemyGrid, xStart, n));
+              }
+              break;
+          }
 
-      // calculate length of ship to place
-      // check if ship is already placed
-      const ship = enemyShips.find(
-        s => s.size === length && s.placed === false
-      );
-      if (ship) {
-        // ship can be placed
-        // get all cells
-        const shipCells = [];
-        switch (dir) {
-          case 'V':
-            for (let n = xStart; n < xStart + length; n++) {
-              shipCells.push(this.findCell(this.enemyGrid, n, yStart));
-            }
-            break;
+          shipCells = shipCells.filter(c => c);
 
-          case 'H':
-            for (let n = yStart; n < yStart + length; n++) {
-              shipCells.push(this.findCell(this.enemyGrid, xStart, n));
-            }
-            break;
-          default:
-            break;
-        }
-        const hasOverlap = shipCells.find(shipCell => !!shipCell.type);
-        if (!hasOverlap) {
-          shipCells.forEach(shipCell => {
-            const gridCell = this.findCell(
-              this.enemyGrid,
-              shipCell.x,
-              shipCell.y
-            );
-            gridCell.type = ship.type;
-          });
-          console.log('placed enemy ' + ship.type);
-          ship.placed = true;
+          if (shipCells.length !== ship.size) {
+            // We went off the board :(
+            continue;
+          }
+
+          const hasOverlap = shipCells.find(shipCell => !!shipCell.type);
+          if (!hasOverlap) {
+            shipCells.forEach(shipCell => {
+              const gridCell = this.findCell(
+                this.enemyGrid,
+                shipCell.x,
+                shipCell.y
+              );
+              gridCell.type = ship.type;
+            });
+            ship.placed = true;
+          }
         }
       }
     }
