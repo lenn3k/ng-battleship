@@ -25,4 +25,8 @@ describe('GameComponent', () => {
   it('should place enemy ships', () => {
     component.placeEnemyShips();
   });
+
+  it('should calculate probability', () => {
+    component.calculateProbability();
+  });
 });

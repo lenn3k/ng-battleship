@@ -35,4 +35,14 @@
       ></div>
     </div>
   </div>
+
+  <div class="d-flex flex-column probability grid">
+    <div class="d-flex flex-row" *ngFor="let row of probGrid">
+      <div
+        class="grid__row__cell--small noselect"
+        *ngFor="let cell of row"
+        [style.background-color]="'rgba(1,1,1,' + cell.prob + ')'"
+      ></div>
+    </div>
+  </div>
 </div>

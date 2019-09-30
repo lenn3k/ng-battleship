@@ -7,6 +7,8 @@ interface Cell {
   hit?: boolean;
   miss?: boolean;
   type?: string;
+  count?: number;
+  prob?: number;
 }
 
 interface Enemy {
@@ -21,6 +23,7 @@ interface Enemy {
   styleUrls: ['./game.component.scss']
 })
 export class GameComponent implements OnInit {
+  probGrid: Cell[][];
   constructor() {}
 
   gameState: 'PLACEMENT' | 'COMBAT' | 'GAMEOVER';
@@ -59,12 +62,17 @@ export class GameComponent implements OnInit {
         this.enemyGrid[y].push({ x, y });
       }
     }
+    this.calculateProbability();
   }
 
   message(text: string) {
     console.log('MESSAGE: ' + text);
   }
 
+  /**
+   * Utility method to deep-copy objects
+   * @param element object to copy
+   */
   copy(element: any): any {
     return JSON.parse(JSON.stringify(element));
   }
@@ -130,16 +138,30 @@ export class GameComponent implements OnInit {
     }
   }
 
+  /**
+   * Method returns Cell from grid with input coordinates or Null when not found
+   * @param grid Grid to scan for cell with coordinates x and y
+   * @param x X coordinate of the cell
+   * @param y Y coordinate of the cell
+   */
   findCell(grid: Cell[][], x: number, y: number) {
     return grid
       .reduce((acc, curr) => acc.concat(curr), [])
       .find(cell => cell.x === x && cell.y === y);
   }
 
+  /**
+   * Utility function to draw the ships
+   * @param n Length of array
+   */
   array(n: number) {
     return new Array(n);
   }
 
+  /**
+   * Handle player fire logic and trigger enemyFire
+   * @param cell Cell to fire upon
+   */
   playerFire(cell: Cell) {
     switch (this.gameState) {
       case 'PLACEMENT':
@@ -147,6 +169,7 @@ export class GameComponent implements OnInit {
         break;
       case 'COMBAT':
         this.fire(this.enemyGrid, cell);
+        this.calculateProbability();
         this.enemyFire();
         break;
       case 'GAMEOVER':
@@ -156,7 +179,9 @@ export class GameComponent implements OnInit {
         break;
     }
   }
-
+  /**
+   * Handle all enemy fire logic
+   */
   enemyFire() {
     switch (this.enemy.mode) {
       case 'HUNT':
@@ -199,12 +224,12 @@ export class GameComponent implements OnInit {
         console.log(this.enemy.targetStack);
 
         if (this.enemy.targetStack.length > 0) {
-          const cell = this.enemy.targetStack.shift();
-          if (this.fire(this.playerGrid, cell)) {
+          const targetCell = this.enemy.targetStack.shift();
+          if (this.fire(this.playerGrid, targetCell)) {
             // Hit => add surrounding cells to target list
             this.enemy.targetStack = [
               ...this.enemy.targetStack,
-              ...this.getSurroundingCells(cell, this.playerGrid)
+              ...this.getSurroundingCells(targetCell, this.playerGrid)
             ];
           } else {
             // Miss => better luck next time!
@@ -221,31 +246,24 @@ export class GameComponent implements OnInit {
     }
   }
 
+  /**
+   *  This method returns the surrounding cells of input cell on input grid
+   * @param cell Center cell to find surrounding cells of
+   * @param grid Grid needed for findCell method
+   */
   getSurroundingCells(cell: Cell, grid: Cell[][]): Cell[] {
     const list = [];
     const x = cell.x;
     const y = cell.y;
 
-    const c1 = this.findCell(grid, x - 1, y);
-    const c2 = this.findCell(grid, x + 1, y);
-    const c3 = this.findCell(grid, x, y - 1);
-    const c4 = this.findCell(grid, x, y + 1);
-    if (c1) {
-      list.push(c1);
-    }
-    if (c2) {
-      list.push(c2);
-    }
-    if (c3) {
-      list.push(c3);
-    }
-    if (c4) {
-      list.push(c4);
-    }
+    list.push(this.findCell(grid, x - 1, y));
+    list.push(this.findCell(grid, x + 1, y));
+    list.push(this.findCell(grid, x, y - 1));
+    list.push(this.findCell(grid, x, y + 1));
 
-    return list.filter(
-      c => isNullOrUndefined(c.hit) && isNullOrUndefined(c.miss)
-    );
+    return list
+      .filter(e => e)
+      .filter(c => isNullOrUndefined(c.hit) && isNullOrUndefined(c.miss));
   }
 
   /**
@@ -287,6 +305,10 @@ export class GameComponent implements OnInit {
     }
   }
 
+  /**
+   * Methode to contain all enemy ship placing logic
+   * Ship placement for enemy is random
+   */
   placeEnemyShips() {
     const enemyShips = this.ships.map(s => ({ ...s, placed: false }));
     for (const s in enemyShips) {
@@ -336,5 +358,64 @@ export class GameComponent implements OnInit {
     }
     this.gameState = 'COMBAT';
     this.message('Combat has started!');
+  }
+
+  calculateProbability() {
+    this.probGrid = this.copy(this.enemyGrid);
+
+    for (const s in this.ships) {
+      if (this.ships.hasOwnProperty(s)) {
+        const ship = this.ships[s];
+        const length = ship.size;
+        for (let d = 0; d < 2; d++) {
+          const dir = d === 0 ? 'H' : 'V';
+
+          for (let xStart = 0; xStart < 10; xStart++) {
+            for (let yStart = 0; yStart < 10; yStart++) {
+              let shipCells = [];
+              switch (dir) {
+                case 'V':
+                  for (let n = xStart; n < xStart + length; n++) {
+                    shipCells.push(this.findCell(this.probGrid, n, yStart));
+                  }
+                  break;
+                case 'H':
+                  for (let n = yStart; n < yStart + length; n++) {
+                    shipCells.push(this.findCell(this.probGrid, xStart, n));
+                  }
+                  break;
+              }
+
+              shipCells = shipCells.filter(c => c);
+
+              if (shipCells.length !== ship.size) {
+                // We went off the board :(
+                continue;
+              }
+
+              if (shipCells.find(c => c.hit || c.miss)) {
+                continue;
+              }
+
+              shipCells.forEach(c => {
+                if (c.count) {
+                  c.count++;
+                } else {
+                  c.count = 1;
+                }
+              });
+            }
+          }
+        }
+      }
+    }
+    const max = this.probGrid
+      .reduce((acc, curr) => acc.concat(curr), [])
+      .filter(c => c.count)
+      .reduce((acc, curr) => Math.max(acc, curr.count || 0), 0);
+
+    this.probGrid = this.probGrid.map(row =>
+      row.map(c => ({ ...c, prob: c.count / max }))
+    );
   }
 }

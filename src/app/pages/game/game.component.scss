@@ -10,6 +10,11 @@ $unit: 3.5vh;
   height: $unit;
   width: $unit;
 }
+.grid__row__cell--small {
+  border: 1px solid #999;
+  height: $unit/2;
+  width: $unit/2;
+}
 
 .ship {
   background-color: rgb(0, 54, 204);
@@ -40,4 +45,10 @@ $unit: 3.5vh;
 .docks__cell {
   height: $unit;
   width: $unit;
+}
+
+.probability {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
 }
