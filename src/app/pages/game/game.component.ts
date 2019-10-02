@@ -168,6 +168,9 @@ export class GameComponent implements OnInit {
         this.message('Place your ships before firing!');
         break;
       case 'COMBAT':
+        if (cell.hit || cell.miss) {
+          break;
+        }
         this.fire(this.enemyGrid, cell);
         this.enemyFire();
         break;
@@ -353,7 +356,7 @@ export class GameComponent implements OnInit {
 
               let increment = 1;
               if (shipCells.find(c => c.hit)) {
-                increment = 10;
+                increment = 20;
               }
 
               shipCells.forEach(c => {

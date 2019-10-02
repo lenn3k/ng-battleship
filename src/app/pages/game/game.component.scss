@@ -1,11 +1,15 @@
-$unit: 3.5vh;
+$unit: 3.25vh;
+
+.title {
+  color: #fefefe;
+}
 
 .grid {
   border: 1px solid #999;
 }
 
 .grid__row__cell {
-  background-color: white;
+  background-color: transparent;
   border: 1px solid #999;
   height: $unit;
   width: $unit;
@@ -25,7 +29,7 @@ $unit: 3.5vh;
 }
 
 .miss {
-  background-color: #999;
+  background-color: #99999988;
 }
 
 .sunk {
