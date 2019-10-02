@@ -5,6 +5,7 @@
         class="grid__row__cell noselect"
         [class.hit]="cell.hit"
         [class.miss]="cell.miss"
+        [class.sunk]="cell.sunk"
         *ngFor="let cell of row"
         (click)="playerFire(cell)"
       ></div>
@@ -18,6 +19,7 @@
         [class.ship]="cell.type"
         [class.hit]="cell.hit"
         [class.miss]="cell.miss"
+        [class.sunk]="cell.sunk"
         *ngFor="let cell of row"
         (mousedown)="startShipPlacement(cell)"
         (mouseup)="endShipPlacement(cell)"

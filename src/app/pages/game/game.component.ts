@@ -9,6 +9,7 @@ interface Cell {
   type?: string;
   count?: number;
   prob?: number;
+  sunk?: boolean;
 }
 
 interface Enemy {
@@ -62,7 +63,6 @@ export class GameComponent implements OnInit {
         this.enemyGrid[y].push({ x, y });
       }
     }
-    this.calculateProbability();
   }
 
   message(text: string) {
@@ -169,7 +169,6 @@ export class GameComponent implements OnInit {
         break;
       case 'COMBAT':
         this.fire(this.enemyGrid, cell);
-        this.calculateProbability();
         this.enemyFire();
         break;
       case 'GAMEOVER':
@@ -183,67 +182,16 @@ export class GameComponent implements OnInit {
    * Handle all enemy fire logic
    */
   enemyFire() {
-    switch (this.enemy.mode) {
-      case 'HUNT':
-        let parity = 1;
-        let x = 0;
-        let y = 0;
-        while (parity !== 0) {
-          x = Math.round(Math.random() * 10) % 9;
-          y = Math.round(Math.random() * 10) % 9;
+    this.calculateProbability(this.ships, this.playerGrid);
 
-          parity = (x + y) % 2;
-        }
+    const targetCells = this.probGrid
+      .reduce((acc, curr) => acc.concat(curr), [])
+      .filter(c => c.prob === 1);
+    const targetCell = targetCells.pop();
 
-        const cell = { x, y };
+    this.enemy.targetList.push(targetCell);
 
-        if (this.enemy.targetList.find(c => c.x === x && c.y === y)) {
-          this.enemyFire();
-          return;
-        }
-
-        this.enemy.targetList.push(cell);
-
-        console.log('firing at ', cell);
-        if (this.fire(this.playerGrid, cell)) {
-          // Hit => go into 'KILL' mode
-          console.log('KILL MODE');
-
-          this.enemy.mode = 'KILL';
-          // Add surrounding cells to the targetStack
-          this.enemy.targetStack = [
-            ...this.enemy.targetStack,
-            ...this.getSurroundingCells(cell, this.playerGrid)
-          ];
-        } else {
-          // Miss => better luck next time!
-        }
-        break;
-
-      case 'KILL':
-        console.log(this.enemy.targetStack);
-
-        if (this.enemy.targetStack.length > 0) {
-          const targetCell = this.enemy.targetStack.shift();
-          if (this.fire(this.playerGrid, targetCell)) {
-            // Hit => add surrounding cells to target list
-            this.enemy.targetStack = [
-              ...this.enemy.targetStack,
-              ...this.getSurroundingCells(targetCell, this.playerGrid)
-            ];
-          } else {
-            // Miss => better luck next time!
-          }
-        } else {
-          this.enemy.mode = 'HUNT';
-          console.log('HUNT MODE');
-
-          this.enemyFire();
-        }
-        break;
-      default:
-        break;
-    }
+    this.fire(this.playerGrid, targetCell);
   }
 
   /**
@@ -287,7 +235,13 @@ export class GameComponent implements OnInit {
         .find(c => c.type === gridCell.type && !c.hit);
 
       if (!isShipAlive) {
-        console.log(gridCell.type + ' destroyed!');
+        this.message(gridCell.type + ' destroyed!');
+        grid
+          .reduce((acc, curr) => acc.concat(curr), [])
+          .filter(c => c.type === gridCell.type && c.hit)
+          .forEach(c => {
+            c.sunk = true;
+          });
       }
 
       const isAnythingAlive = grid
@@ -360,10 +314,10 @@ export class GameComponent implements OnInit {
     this.message('Combat has started!');
   }
 
-  calculateProbability() {
-    this.probGrid = this.copy(this.enemyGrid);
+  calculateProbability(ships: any[], grid: Cell[][]) {
+    this.probGrid = this.copy(grid);
 
-    for (const s in this.ships) {
+    for (const s in ships) {
       if (this.ships.hasOwnProperty(s)) {
         const ship = this.ships[s];
         const length = ship.size;
@@ -393,15 +347,23 @@ export class GameComponent implements OnInit {
                 continue;
               }
 
-              if (shipCells.find(c => c.hit || c.miss)) {
+              if (shipCells.find(c => c.sunk || c.miss)) {
                 continue;
+              }
+
+              let increment = 1;
+              if (shipCells.find(c => c.hit)) {
+                increment = 10;
               }
 
               shipCells.forEach(c => {
                 if (c.count) {
-                  c.count++;
+                  c.count = c.count + increment;
                 } else {
-                  c.count = 1;
+                  c.count = increment;
+                }
+                if (c.hit) {
+                  c.count = 0;
                 }
               });
             }
