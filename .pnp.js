@@ -38,6 +38,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",
           "packageDependencies": [
             ["@angular-devkit/build-angular", "virtual:50e85ef9d5547024c611831f29d158849bf7dba5322ea76af112b110c8d711d09c34d13c5ea9edd585cabba68bca75952447616351092b2740614023d257a4af#patch:@angular-devkit/build-angular@npm%3A0.901.15#builtin<ng/@angular-devkit/build-angular>::version=0.901.15&hash=d34aae"],
+            ["@angular-devkit/core", "npm:12.0.0"],
             ["@angular-devkit/schematics", "npm:12.0.0"],
             ["@angular/animations", "virtual:50e85ef9d5547024c611831f29d158849bf7dba5322ea76af112b110c8d711d09c34d13c5ea9edd585cabba68bca75952447616351092b2740614023d257a4af#npm:12.0.0"],
             ["@angular/cli", "npm:12.0.0"],
@@ -4379,6 +4380,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["battleship", "workspace:."],
             ["@angular-devkit/build-angular", "virtual:50e85ef9d5547024c611831f29d158849bf7dba5322ea76af112b110c8d711d09c34d13c5ea9edd585cabba68bca75952447616351092b2740614023d257a4af#patch:@angular-devkit/build-angular@npm%3A0.901.15#builtin<ng/@angular-devkit/build-angular>::version=0.901.15&hash=d34aae"],
+            ["@angular-devkit/core", "npm:12.0.0"],
             ["@angular-devkit/schematics", "npm:12.0.0"],
             ["@angular/animations", "virtual:50e85ef9d5547024c611831f29d158849bf7dba5322ea76af112b110c8d711d09c34d13c5ea9edd585cabba68bca75952447616351092b2740614023d257a4af#npm:12.0.0"],
             ["@angular/cli", "npm:12.0.0"],

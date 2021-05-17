@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.901.15",
+    "@angular-devkit/core": "^12.0.0",
     "@angular-devkit/schematics": "^12.0.0",
     "@angular/cli": "12.0.0",
     "@angular/compiler-cli": "12.0.0",
