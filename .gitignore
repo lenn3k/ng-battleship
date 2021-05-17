@@ -40,8 +40,16 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
-yarn.lock
 
 # System Files
 .DS_Store
 Thumbs.db
+
+# yarn 2 related stuff
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
