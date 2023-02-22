@@ -37,5 +37,7 @@
   </div>
 </div>
 
-<div [hidden]="gameState!=='PLACEMENT'" class="turn ">Place your ships by dragging from start to end position on the bottom grid</div>
+<div [hidden]="gameState!=='PLACEMENT' || playerReady" class="turn ">Place your ships by dragging from start to end position on the bottom grid</div>
+<div [hidden]="gameState!=='PLACEMENT' || !playerReady" class="turn ">Wait for the enemy to finish placing his ships.</div>
 <div [hidden]="gameState!=='COMBAT'" class="turn {{canFire?'green':'red'}}">{{canFire?'Your Turn':'enemyTurn'}}</div>
+<div [hidden]="gameState!=='GAMEOVER'" class="turn {{won?'green':'red'}}">{{gameOverMessage}}</div>

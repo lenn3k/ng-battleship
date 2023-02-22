@@ -38,6 +38,8 @@ export class GamePlayerComponent implements OnInit, OnDestroy {
   isHost: boolean = false;
   canFire: boolean = false;
   targetCell: Cell;
+  gameOverMessage: string;
+  won: boolean;
 
   public constructor(
     private _socketService: SocketService,
@@ -112,6 +114,21 @@ export class GamePlayerComponent implements OnInit, OnDestroy {
           console.log('onDestroyed',data)
           this.handleDestroyed(shipType)
         }
+      }
+    )
+
+    this._socketService.onGameOver().pipe(takeUntil(this.destroy$)).subscribe(
+      (playerName) =>{
+        console.log('gameOver',playerName)
+        if(playerName!==this.name){
+          this.won = true;
+          this.gameOverMessage = 'You won!'
+        } else {
+          this.won = false;
+          this.gameOverMessage = 'You lost :('
+        }
+        this.gameState='GAMEOVER'
+        this.canFire = false;
       }
     )
 
