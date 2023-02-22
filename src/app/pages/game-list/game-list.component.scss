@@ -1,0 +1,37 @@
+.container{
+  width: 50%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  background-color:  #acacac55;
+  padding: 1em;
+}
+
+
+.name-cell{
+  text-align: left;
+}
+
+.player-cell{
+  text-align: center;
+}
+
+.join-cell{
+  text-align: right;
+}
+
+
+input{
+  border-radius: 10px;
+  margin-left: 1em;
+  border: dotted 1px black;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.create-container{
+  text-align: right;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

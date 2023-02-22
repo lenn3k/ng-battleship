@@ -1,8 +1,7 @@
-$unit: 3.25vh;
+@use 'sass:math';
 
-.title {
-  color: #fefefe;
-}
+$unit: 25px;
+
 
 .grid {
   border: 1px solid #999;
@@ -16,8 +15,8 @@ $unit: 3.25vh;
 }
 .grid__row__cell--small {
   border: 1px solid #999;
-  height: $unit/2;
-  width: $unit/2;
+  height: math.div($unit,2);
+  width: math.div($unit,2);
 }
 
 .ship {
@@ -44,19 +43,4 @@ $unit: 3.25vh;
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Opera and Firefox */
-}
-
-.docks {
-  width: 10 * $unit;
-}
-
-.docks__cell {
-  height: $unit;
-  width: $unit;
-}
-
-.probability {
-  position: fixed;
-  left: 1rem;
-  top: 1rem;
 }

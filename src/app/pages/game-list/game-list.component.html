@@ -1,0 +1,33 @@
+<div class="container">
+  <h2>Hello {{name}}, are you ready to play BattleShip?</h2>
+  <hr>
+  <h1>SessionList</h1>
+
+  <p class="empty" *ngIf="availableSessions.length === 0">No sessions found, you can create one yourself or wait for someone else to create a session, the list updates automatically.</p>
+
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Players</th>
+      <th></th>
+    </tr>
+    <tr *ngFor="let session of availableSessions">
+      <td class="name-cell">
+        {{session.name}}
+      </td>
+      <td class="player-cell">{{session.players.length}}</td>
+      <td class="join-cell"><button (click)="joinGame(session)">Join</button></td>
+    </tr>
+  </table>
+
+  <hr>
+  <div class="create-container">
+
+
+    <button class="create-button" (click)="createGame()">
+      Create a new game
+    </button>
+  </div>
+</div>
+
+

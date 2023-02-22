@@ -1,0 +1,15 @@
+<div class="d-flex flex-column grid">
+  <div class="d-flex flex-row grid__row" *ngFor="let row of grid">
+    <div
+      class="grid__row__cell noselect"
+      [class.ship]="cell.type && showShips"
+      [class.hit]="cell.hit"
+      [class.miss]="cell.miss"
+      [class.sunk]="cell.sunk"
+      *ngFor="let cell of row"
+      (mousedown)="handleMouseDown(cell)"
+      (mouseup)="handleMouseUp(cell)"
+      (click)="handleClick(cell)"
+    ></div>
+  </div>
+</div>

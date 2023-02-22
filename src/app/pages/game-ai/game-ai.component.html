@@ -1,0 +1,38 @@
+<div class="container d-flex flex-column align-items-center">
+  <h2 class="title">Battleships: Space!</h2>
+  <h3 class="title">Enemy battlefield</h3>
+  <grid
+  canFire
+  [grid]="enemyGrid"
+  (mouseClick)="playerFire($event)"></grid>
+
+  <h3 class="title">your battlefield</h3>
+  <grid
+  showShips
+  canPlace
+  [grid]="playerGrid"
+  (mouseDown)="startShipPlacement($event)"
+  (mouseUp)="endShipPlacement($event)"></grid>
+
+
+  <div class="docks d-flex flex-row justify-content-around mt-3">
+    <div *ngFor="let ship of ships">
+      <div
+        class="docks__cell ship"
+        [class.placed]="ship.placed"
+        [hidden]="ship.placed"
+        *ngFor="let i of array(ship.size)"
+      ></div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-column probability grid">
+    <div class="d-flex flex-row" *ngFor="let row of probGrid">
+      <div
+        class="grid__row__cell--small noselect"
+        *ngFor="let cell of row"
+        [style.background-color]="'rgba(1,1,1,' + cell.prob + ')'"
+      ></div>
+    </div>
+  </div>
+</div>

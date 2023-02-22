@@ -1,28 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { Cell, copy, Enemy } from '../utils/interfaces';
 
-interface Cell {
-  x: number;
-  y: number;
-  hit?: boolean;
-  miss?: boolean;
-  type?: string;
-  count?: number;
-  prob?: number;
-  sunk?: boolean;
-}
 
-interface Enemy {
-  targetStack: Cell[];
-  mode: 'HUNT' | 'KILL';
-  targetList: Cell[];
-}
 
 @Component({
-  selector: 'app-game',
-  templateUrl: './game.component.html',
-  styleUrls: ['./game.component.scss'],
+  selector: 'app-game-ai',
+  templateUrl: './game-ai.component.html',
+  styleUrls: ['./game-ai.component.scss'],
 })
-export class GameComponent implements OnInit {
+export class GameAiComponent implements OnInit {
   probGrid: Cell[][];
 
   gameState: 'PLACEMENT' | 'COMBAT' | 'GAMEOVER';
@@ -67,17 +53,11 @@ export class GameComponent implements OnInit {
     console.log('MESSAGE: ' + text);
   }
 
-  /**
-   * Utility method to deep-copy objects
-   * @param element object to copy
-   */
-  private copy<T>(element: T): T {
-    return JSON.parse(JSON.stringify(element));
-  }
 
   public startShipPlacement(cell: Cell): void {
     this.startCell = cell;
   }
+
 
   public endShipPlacement(cell: Cell): void {
     this.endCell = cell;
@@ -144,7 +124,7 @@ export class GameComponent implements OnInit {
    * @param x X coordinate of the cell
    * @param y Y coordinate of the cell
    */
-  private findCell(grid: Cell[][], x: number, y: number): Cell {
+  public findCell(grid: Cell[][], x: number, y: number): Cell {
     return grid
       .reduce((acc, curr) => acc.concat(curr), [])
       .find((cell) => cell.x === x && cell.y === y);
@@ -217,46 +197,38 @@ export class GameComponent implements OnInit {
       .filter((c) => c.hit === undefined && c.miss === undefined);
   }
 
-  /**
-   *
-   * @param grid The grid to shoot on
-   * @param cell The target Cell to shoot at
-   *
-   * @returns boolean True on Hit, False on Miss
-   */
-  private fire(grid: Cell[][], cell: Cell): boolean {
+  public fire(grid: Cell[][], cell: Cell): boolean {
+    // Find the target cell in the grid
     const gridCell = this.findCell(grid, cell.x, cell.y);
+
+    // If the cell has already been hit or missed, return false
     if (gridCell.hit || gridCell.miss) {
       return false;
     }
+
+    // If the cell is a ship
     if (gridCell.type) {
+      // Mark the cell as hit
       gridCell.hit = true;
 
-      // check if the ship is destroyed
-      const isShipAlive = grid
-        .reduce((acc, curr) => acc.concat(curr), [])
-        .find((c) => c.type === gridCell.type && !c.hit);
-
-      if (!isShipAlive) {
+      // Check if the ship is destroyed
+      if (!grid.flat().find(c => c.type === gridCell.type && !c.hit)) {
+        // If all cells of the same type have been hit, mark all as sunk and display message
         this.message(gridCell.type + ' destroyed!');
-        grid
-          .reduce((acc, curr) => acc.concat(curr), [])
-          .filter(c => c.type === gridCell.type && c.hit)
-          .forEach(c => {
-            c.sunk = true;
-          });
+        grid.flat().filter(c => c.type === gridCell.type && c.hit).forEach(c => {
+          c.sunk = true;
+        });
       }
 
-      const isAnythingAlive = grid
-        .reduce((acc, curr) => acc.concat(curr), [])
-        .find((c) => c.type && !c.hit);
-      if (!isAnythingAlive) {
+      // Check if all ships have been destroyed
+      if (!grid.flat().find(c => c.type && !c.hit)) {
         this.message('GAME OVER');
         this.gameState = 'GAMEOVER';
       }
 
       return true;
     } else {
+      // If the cell is not a ship, mark as miss
       gridCell.miss = true;
       return false;
     }
@@ -318,7 +290,7 @@ export class GameComponent implements OnInit {
   }
 
   calculateProbability(ships: any[], grid: Cell[][]) {
-    this.probGrid = this.copy(grid);
+    this.probGrid = copy(grid);
 
     for (const s in ships) {
       if (this.ships.hasOwnProperty(s)) {
